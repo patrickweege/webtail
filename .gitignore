@@ -1,3 +1,11 @@
+#Eclipse Files
+/target/
+.classpath
+/Users/
+.project
+.jsdtscope
+.settings
+
 # Compiled class file
 *.class
 
