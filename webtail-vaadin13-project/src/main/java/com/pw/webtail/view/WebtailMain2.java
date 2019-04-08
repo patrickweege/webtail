@@ -36,9 +36,9 @@ import com.vaadin.flow.router.Route;
  * Displays the list of available categories, with a search filter as well as
  * buttons to add a new category or edit existing ones.
  */
-@Route(value = "webtail")
+@Route(value = "webtail2")
 @PageTitle("Web-Tail View")
-public class WebtailMain extends VerticalLayout {
+public class WebtailMain2 extends VerticalLayout {
 
     private Tabs tabs;
     private TextField filePath;
@@ -46,7 +46,7 @@ public class WebtailMain extends VerticalLayout {
     private Map<Tab,Div> tabMap;
     private Div pages;
 
-	public WebtailMain() {
+	public WebtailMain2() {
 		this.tabMap = new HashMap<Tab, Div>();
         this.initView();
         this.addInputFile();
