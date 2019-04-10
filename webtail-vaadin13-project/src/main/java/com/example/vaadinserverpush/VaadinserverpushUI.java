@@ -11,7 +11,7 @@ import com.vaadin.flow.server.VaadinRequest;
 
 @Push
 @SuppressWarnings("serial")
-@Route(value = "pushs")
+@Route(value = "push")
 public class VaadinserverpushUI extends UI {
 
 	private QuoteGenerator qg;

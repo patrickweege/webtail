@@ -13,22 +13,19 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.pw.webtail.view;
+package com.pw.webtail2.view;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.pw.webtail.backend.WebtailService;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.dom.Element;
-import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -36,6 +33,7 @@ import com.vaadin.flow.router.Route;
  * Displays the list of available categories, with a search filter as well as
  * buttons to add a new category or edit existing ones.
  */
+@Push
 @Route(value = "webtail2")
 @PageTitle("Web-Tail View")
 public class WebtailMain2 extends VerticalLayout {
@@ -71,38 +69,8 @@ public class WebtailMain2 extends VerticalLayout {
 	}
 
 	public void doOpenFile(ClickEvent<Button> event) {
-		List<String> lines = WebtailService.getInstance().getFileContent(filePath.getValue());
-		
-		Div page = new Div();
-		page.setSizeUndefined();
-		page.addClassName("scrollable");
-		
-		//new Pa
-		
-//		Button btn = new Button("Refresh");
-//		btn.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
-//			
-//			@Override
-//			public void onComponentEvent(ClickEvent<Button> event) {
-//				Element pre = ElementFactory.createPreformatted("Hello World" + page.getChildren().count());
-//				pre.getStyle().set("margin", "0px 0px 0px 0px");
-//				page.getElement().appendChild(pre);
-//				//page.add(pre);
-//			}
-//		});
-//		page.add(btn);
-		
-		lines.forEach(line -> {
-			Element pre = ElementFactory.createPreformatted(line);
-			pre.getStyle().set("margin", "0px 0px 0px 0px");
-			page.getElement().appendChild(pre);
-		});
-		
-		
-		
-		
 		Tab newTab = new Tab("Tab-" + tabs.getComponentCount());
-		this.tabMap.put(newTab, page);
+		this.tabMap.put(newTab, new TailContentContainer(filePath.getValue()));
 		
 		this.tabs.add(newTab);
 		this.tabs.setSelectedTab(newTab);
