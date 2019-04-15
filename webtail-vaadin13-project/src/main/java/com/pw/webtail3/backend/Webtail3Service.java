@@ -1,4 +1,4 @@
-package com.pw.webtail3.view;
+package com.pw.webtail3.backend;
 
 import java.io.File;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class Webtail3Service {
 		try {
 			synchronized (this.tailers) {
 				InternalTailerListener tl = new InternalTailerListener(id);
-				Tailer tailer = Tailer.create(new File(filePath), tl, 1000, true);
+				Tailer tailer = Tailer.create(new File(filePath), tl, 1000, false);
 				tailers.put(id, tailer);
 			}
 
