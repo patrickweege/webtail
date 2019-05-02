@@ -4,101 +4,104 @@ import java.io.File;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.pw.fsexplorer.bean.FileSystemItemBean;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.SortOrderProvider;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.treegrid.TreeGrid;
-import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataProvider;
-import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
-import com.vaadin.flow.data.renderer.LocalDateRenderer;
+import com.vaadin.flow.data.provider.QuerySortOrder;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
-import com.vaadin.flow.data.renderer.TemplateRenderer;
 
 public class FileSystemExplorerContainer extends Div {
 
+	private TreeGrid<File> treeGrid;
+	private TextField textBaseName;
+	private Button btnOpener;
+	
 	public FileSystemExplorerContainer() {
-
+		this.createOpener();
+		this.createTreeGrid();
 	}
+
+	
+	
+	private void createOpener() {
+		this.textBaseName = new TextField();
+		this.textBaseName.setWidth("300px");
+		
+		this.btnOpener = new Button("Goto Folder");
+		
+		this.btnOpener.addClickListener(evt -> {
+			treeGrid.setDataProvider(new FileSystemExplorerDataProvider(new File(textBaseName.getValue())));
+		});
+
+		this.add(textBaseName, btnOpener);
+		
+	}
+
 
 	private void createTreeGrid() {
 		
-		TreeGrid<File> treeGrid = new TreeGrid<>();
-        treeGrid.setDataProvider(new FileSystemExplorerDataProvider(null));
- 
-        
-        TemplateRenderer<File>.of(template)
-        
-        treeGrid.addColumn(file -> {
-            String iconHtml;
-            if (file.isDirectory()) {
-                iconHtml = VaadinIcons.FOLDER_O.getHtml();
-            } else {
-                iconHtml = VaadinIcons.FILE_O.getHtml();
-            }
-            return iconHtml + " "
-                    + Jsoup.clean(file.getName(), Whitelist.simpleText());
-        }, new HtmlRenderer()).setHeader("Name").setId("file-name");
- 
-        
-        new Teplat
-        
-        treeGrid.addColumn(file -> file.isDirectory() ? "--" : file.length() + " bytes").setHeader("Size").setId("file-size");
+		this.treeGrid = new TreeGrid<>();
+		this.treeGrid.setDataProvider(new FileSystemExplorerDataProvider(new File(".")));
 
-        LocalDateTimeRenderer<File> dateTimeRender = new LocalDateTimeRenderer<>(file -> LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), ZoneId.systemDefault()));
-        treeGrid.addColumn(dateTimeRender).setHeader("Last Modified").setId("file-last-modified");
- 
-        treeGrid.setHierarchyColumn("file-name");		
-		
-		
-//		
-//		
-//		TreeGrid<FileSystemItemBean> grid = new TreeGrid<>();
-//		grid.addHierarchyColumn(FileSystemItemBean::getName).setHeader("Name");
-//		grid.addColumn(FileSystemItemBean::getSize).setHeader("Size");
-//		grid.addColumn(FileSystemItemBean::getModified).setHeader("Modified");
-//
-//		grid.setDataProvider(new AbstractBackEndHierarchicalDataProvider<FileSystemItemBean, Void>() {
-//
-//			private final int nodesPerLevel = 3;
-//			private final int depth = 2;
-//
-//			@Override
-//			public int getChildCount(HierarchicalQuery<FileSystemItemBean, Void> query) {
-//				Optional<Integer> count = query.getParentOptional().flatMap(
-//						parent -> Optional.of(Integer.valueOf((internalHasChildren(parent) ? nodesPerLevel : 0))));
-//
-//				return count.orElse(nodesPerLevel);
-//			}
-//
-//			@Override
-//			public boolean hasChildren(FileSystemItemBean item) {
-//				return internalHasChildren(item);
-//			}
-//
-//			private boolean internalHasChildren(FileSystemItemBean node) {
-//				return node.getDepth() < depth;
-//			}
-//
-//			@Override
-//			protected Stream<FileSystemItemBean> fetchChildrenFromBackEnd(
-//					HierarchicalQuery<FileSystemItemBean, Void> query) {
-//				final int depth = query.getParentOptional().isPresent() ? query.getParent().getDepth() + 1 : 0;
-//				final Optional<String> parentKey = query.getParentOptional()
-//						.flatMap(parent -> Optional.of(parent.getId()));
-//
-//				List<FileSystemItemBean> list = new ArrayList<>();
-//				int limit = Math.min(query.getLimit(), nodesPerLevel);
-//				for (int i = 0; i < limit; i++) {
-//					list.add(new FileSystemItemBean(parentKey.orElse(null), depth, i + query.getOffset()));
-//				}
-//				return list.stream();
-//			}
-//		});
-
+        
+//        ComponentRenderer<Component, File> nameRenderer =  new ComponentRenderer<Component, File>(file -> {
+//            if (file.isFile()) {
+//                return new Icon(VaadinIcon.FILE);
+//            } else {
+//            	Icon i;
+//            	if(treeGrid.isExpanded(file)) {
+//                    i = new Icon(VaadinIcon.FOLDER_OPEN);
+//            	} else {
+//            		i = new Icon(VaadinIcon.FOLDER);
+//            	}
+//                i.addClickListener(evt -> {
+//                	if(treeGrid.isExpanded(file)) {
+//                    	treeGrid.collapse(file);
+//                	} else {
+//                    	treeGrid.expand(file);
+//                	}
+//                });
+//                return i;
+//            }
+//        });
+        
+//        treeGrid.addColumn(nameRenderer).setHeader("Name");
+        Column<File> fNameColumn = treeGrid.addHierarchyColumn(file -> file.getName()).setHeader("Name");
+        fNameColumn.setId("file-name");
+        fNameColumn.setFlexGrow(4);
+        fNameColumn.setResizable(true);
+        fNameColumn.setSortable(true);
+        
+		LocalDateTimeRenderer<File> dateTimeRender = new LocalDateTimeRenderer<>(
+				file -> LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), ZoneId.systemDefault()),
+				"dd-MM-yyyy HH:mm:ss");
+        Column<File> dateColumn = treeGrid.addColumn(dateTimeRender).setHeader("Modified");
+        dateColumn.setId("file-date");
+        dateColumn.setFlexGrow(1);
+        dateColumn.setResizable(true);
+        dateColumn.setSortable(true);
+        
+        Column<File> typeColumn = treeGrid.addColumn(file -> file.isDirectory() ? "Folder" : "File").setHeader("Type");
+        typeColumn.setId("file-type");
+        typeColumn.setFlexGrow(1);
+        typeColumn.setResizable(true);
+        typeColumn.setWidth("50px");
+        typeColumn.setSortable(true);
+        
+        Column<File> sizeColumn = treeGrid.addColumn(file -> file.isDirectory() ? "--" : file.length() + " bytes").setHeader("Size");
+        sizeColumn.setId("file-size");
+        sizeColumn.setFlexGrow(1);
+        sizeColumn.setResizable(true);
+        sizeColumn.setSortable(true);
+        
+        this.add(treeGrid);
+        
 	}
 
 }
